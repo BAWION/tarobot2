@@ -1,16 +1,15 @@
 import telebot
 import openai
 from telebot import types
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
+# Здесь прямо указаны токены для Telegram и OpenAI
+TELEGRAM_TOKEN = '6813726524:AAEkKSvR3thRTJu0lWYEXWn6BPSlvo0-FW8'
+OPENAI_TOKEN = 'your_openai_api_key_here'
 
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-OPENAI_TOKEN = os.getenv('OPENAI_TOKEN')
-
+# Установка API ключа для OpenAI
 openai.api_key = OPENAI_TOKEN
 
+# Инициализация бота Telegram
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 users = {}
@@ -44,20 +43,20 @@ def process_name_step(message):
     bot.register_next_step_handler(msg, process_zodiac_step, user_id)
 
 def process_zodiac_step(message, user_id):
-  zodiac = message.text
-  users[user_id]['zodiac'] = zodiac
+    zodiac = message.text
+    users[user_id]['zodiac'] = zodiac
  
-  msg = bot.send_message(message.chat.id, "Отправь фото своей ладони для предсказания")
-  bot.register_next_step_handler(msg, process_photo_step, user_id)
+    msg = bot.send_message(message.chat.id, "Отправь фото своей ладони для предсказания")
+    bot.register_next_step_handler(msg, process_photo_step, user_id)
   
 def process_photo_step(message, user_id):
-  photo_id = message.photo[-1].file_id
-  users[user_id]['photo'] = photo_id  
+    photo_id = message.photo[-1].file_id
+    users[user_id]['photo'] = photo_id  
 
-  user = users[user_id]
-  prompt = f"Provide astrology and tarot card prediction for {user['name']} with zodiac sign {user['zodiac']} based on palm photo: {user['photo']}"
-  prediction = get_prediction(prompt)
+    user = users[user_id]
+    prompt = f"Provide astrology and tarot card prediction for {user['name']} with zodiac sign {user['zodiac']} based on palm photo: {user['photo']}"
+    prediction = get_prediction(prompt)
   
-  bot.send_message(message.chat.id, prediction)
+    bot.send_message(message.chat.id, prediction)
   
 bot.polling()
