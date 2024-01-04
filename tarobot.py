@@ -3,8 +3,8 @@ import openai
 from telebot import types
 
 # Здесь прямо указаны токены для Telegram и OpenAI
-TELEGRAM_TOKEN = '6813726524:AAEkKSvR3thRTJu0lWYEXWn6BPSlvo0-FW8'
-OPENAI_TOKEN = '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'
+TELEGRAM_TOKEN = ''
+OPENAI_TOKEN = ''
 
 # Установка API ключа для OpenAI
 openai.api_key = OPENAI_TOKEN
