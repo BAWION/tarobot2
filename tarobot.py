@@ -20,16 +20,21 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 users = {}
 
-def get_prediction(prompt):
+def get_prediction(prompt, max_tokens=300):
     response = openai.Completion.create(
         engine="text-davinci-003",
         prompt=prompt,
-        max_tokens=100,
+        max_tokens=max_tokens,
         n=1,
         stop=None,
         temperature=0.5,
     )
     return response.choices[0].text
+
+def send_partial_response(chat_id, prediction):
+    partial_response = prediction[:int(len(prediction) * 0.4)]
+    bot.send_message(chat_id, partial_response)
+    bot.send_message(chat_id, "Чтобы получить полный ответ, отправьте 50 рублей. [Ссылка на оплату]")
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -74,7 +79,6 @@ def process_photo_step(message, user_id):
     user = users[user_id]
     prompt = f"Сделайте астрологическое предсказание и предсказание по карте Таро для {user['name']} со знаком зодиака {user['zodiac']} на основе фотографии ладони: {user['photo']}"
     prediction = get_prediction(prompt)
-
-    bot.send_message(message.chat.id, prediction)
+    send_partial_response(message.chat.id, prediction)
 
 bot.polling()
