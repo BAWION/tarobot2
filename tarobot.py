@@ -65,12 +65,12 @@ def process_zodiac_step(message, user_id):
         return
     users[user_id]['zodiac'] = zodiac
 
-    msg = bot.send_message(message.chat.id, "Отправь фото своей ладони для предсказания")
+    msg = bot.send_message(message.chat.id, "Отправь фото своей левой ладони для предсказания")
     bot.register_next_step_handler(msg, process_photo_step, user_id)
 
 def process_photo_step(message, user_id):
     if not message.photo:
-        msg = bot.send_message(message.chat.id, "Пожалуйста, отправь фото ладони.")
+        msg = bot.send_message(message.chat.id, "Пожалуйста, отправь фото левой ладони.")
         bot.register_next_step_handler(msg, process_photo_step, user_id)
         return
     photo_id = message.photo[-1].file_id
