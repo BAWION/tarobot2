@@ -30,8 +30,8 @@ def safe_send_message(chat_id, text):
             raise e
 
 def get_prediction(prompt, max_tokens=300):
-    response = openai.Completion.create_prompt(
-        engine="text-davinci-003",
+    response = openai.Completion.create(
+        model="text-davinci-003",
         prompt=prompt,
         max_tokens=max_tokens,
         n=1,
