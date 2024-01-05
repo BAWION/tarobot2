@@ -8,10 +8,6 @@ from telebot import types
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 OPENAI_TOKEN = os.getenv('OPENAI_TOKEN')
 
-# Убедитесь, что токены были правильно загружены
-if not TELEGRAM_TOKEN or not OPENAI_TOKEN:
-    raise ValueError("Не удалось загрузить токены. Проверьте настройки переменных окружения.")
-
 # Установка API ключа для OpenAI
 openai.api_key = OPENAI_TOKEN
 
@@ -20,9 +16,9 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 users = {}
 
-def safe_send_message(chat_id, text):
+def safe_send_message(chat_id, text, reply_markup=None):
     try:
-        bot.send_message(chat_id, text)
+        bot.send_message(chat_id, text, reply_markup=reply_markup)
     except telebot.apihelper.ApiTelegramException as e:
         if e.result.status_code == 403:
             print(f"Не удалось отправить сообщение пользователю {chat_id}: пользователь заблокировал бота")
@@ -42,7 +38,16 @@ def get_prediction(prompt, max_tokens=300):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    safe_send_message(message.chat.id, "Привет! Я бот-предсказатель. Чтобы получить предсказание, зарегистрируйся командой /register")
+    markup = types.InlineKeyboardMarkup()
+    btn_donate = types.InlineKeyboardButton("Поддержать проект", url="https://example.com/donate")
+    markup.add(btn_donate)
+    welcome_text = "Привет! Я бот-предсказатель. Чтобы получить предсказание, зарегистрируйся командой /register. Также ты можешь поддержать наш проект!"
+    safe_send_message(message.chat.id, welcome_text, reply_markup=markup)
+
+@bot.message_handler(commands=['donate'])
+def donate(message):
+    donate_text = "Ты можешь поддержать наш проект здесь: [Ссылка на донат](https://example.com/donate)"
+    safe_send_message(message.chat.id, donate_text, parse_mode='Markdown')
 
 @bot.message_handler(commands=['register'])
 def register(message):
@@ -82,7 +87,7 @@ def process_photo_step(message):
 
     user = users[user_id]
     prompt = f"Сделайте астрологическое предсказание и предсказание по карте Таро для {user['name']} со знаком зодиака {user['zodiac']} на основе фотографии ладони: {user['photo']}"
-    full_prediction = get_prediction(prompt, max_tokens=900) # Увеличиваем количество токенов для более полного ответа
+    full_prediction = get_prediction(prompt, max_tokens=900)
     safe_send_message(message.chat.id, full_prediction)
 
 bot.polling()
