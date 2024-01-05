@@ -40,11 +40,6 @@ def get_prediction(prompt, max_tokens=300):
     )
     return response.choices[0].text
 
-def send_partial_response(chat_id, prediction):
-    partial_response = prediction[:int(len(prediction) * 0.4)]
-    safe_send_message(chat_id, partial_response)
-    safe_send_message(chat_id, "Чтобы получить полный ответ, отправьте 50 рублей. [Ссылка на оплату]")
-
 @bot.message_handler(commands=['start'])
 def start(message):
     safe_send_message(message.chat.id, "Привет! Я бот-предсказатель. Чтобы получить предсказание, зарегистрируйся командой /register")
@@ -76,8 +71,6 @@ def process_zodiac_step(message):
     safe_send_message(message.chat.id, "Отправь фото своей левой ладони для предсказания")
     bot.register_next_step_handler_by_chat_id(user_id, process_photo_step)
 
-# ... (предыдущий код)
-
 def process_photo_step(message):
     user_id = message.chat.id
     if not message.photo:
@@ -89,10 +82,7 @@ def process_photo_step(message):
 
     user = users[user_id]
     prompt = f"Сделайте астрологическое предсказание и предсказание по карте Таро для {user['name']} со знаком зодиака {user['zodiac']} на основе фотографии ладони: {user['photo']}"
-    prediction = get_prediction(prompt)
-    send_partial_response(message.chat.id, prediction)
-
-# ... (остальной код)
-
+    full_prediction = get_prediction(prompt, max_tokens=900) # Увеличиваем количество токенов для более полного ответа
+    safe_send_message(message.chat.id, full_prediction)
 
 bot.polling()
