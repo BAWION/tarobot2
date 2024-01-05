@@ -58,24 +58,23 @@ def process_name_step(message):
     user_id = message.chat.id
     name = message.text
     if not re.match("^[а-яА-ЯёЁa-zA-Z]+$", name):
-        msg = safe_send_message(message.chat.id, "Пожалуйста, введи корректное имя.")
+        msg = bot.send_message(message.chat.id, "Пожалуйста, введи корректное имя.")
         bot.register_next_step_handler(msg, process_name_step)
         return
     users[user_id] = {'name': name}
+    safe_send_message(message.chat.id, "Какой у тебя знак зодиака?")
+    bot.register_next_step_handler_by_chat_id(user_id, process_zodiac_step)
 
-    msg = safe_send_message(message.chat.id, "Какой у тебя знак зодиака?")
-    bot.register_next_step_handler(msg, process_zodiac_step, user_id)
-
-def process_zodiac_step(message, user_id):
+def process_zodiac_step(message):
+    user_id = message.chat.id
     zodiac = message.text
     if not re.match("^[а-яА-ЯёЁa-zA-Z]+$", zodiac):
-        msg = safe_send_message(message.chat.id, "Пожалуйста, введи корректный знак зодиака.")
-        bot.register_next_step_handler(msg, process_zodiac_step, user_id)
+        msg = bot.send_message(message.chat.id, "Пожалуйста, введи корректный знак зодиака.")
+        bot.register_next_step_handler(msg, process_zodiac_step)
         return
     users[user_id]['zodiac'] = zodiac
-
-    msg = safe_send_message(message.chat.id, "Отправь фото своей левой ладони для предсказания")
-    bot.register_next_step_handler(msg, process_photo_step, user_id)
+    safe_send_message(message.chat.id, "Отправь фото своей левой ладони для предсказания")
+    bot.register_next_step_handler_by_chat_id(user_id, process_photo_step)
 
 def process_photo_step(message, user_id):
     if not message.photo:
