@@ -57,4 +57,29 @@ def process_name_step(message):
     msg = bot.send_message(message.chat.id, "Какой у тебя знак зодиака?")
     bot.register_next_step_handler(msg, process_zodiac_step, user_id)
 
+def process_zodiac_step(message, user_id):
+    zodiac = message.text
+    if not re.match("^[а-яА-ЯёЁa-zA-Z]+$", zodiac):
+        msg = bot.send_message(message.chat.id, "Пожалуйста, введи корректный знак зодиака.")
+        bot.register_next_step_handler(msg, process_zodiac_step, user_id)
+        return
+    users[user_id]['zodiac'] = zodiac
+
+    msg = bot.send_message(message.chat.id, "Отправь фото своей левой ладони для предсказания")
+    bot.register_next_step_handler(msg, process_photo_step, user_id)
+
+def process_photo_step(message, user_id):
+    if not message.photo:
+        msg = bot.send_message(message.chat.id, "Пожалуйста, отправь фото левой ладони.")
+        bot.register_next_step_handler(msg, process_photo_step, user_id)
+        return
+    photo_id = message.photo[-1].file_id
+    users[user_id]['photo'] = photo_id  
+
+    user = users[user_id]
+    prompt = f"Сделайте астрологическое предсказание и предсказание по карте Таро для {user['name']} со знаком зодиака {user['zodiac']} на основе фотографии ладони: {user['photo']}"
+    prediction = get_prediction(prompt)
+    send_partial_response(message.chat.id, prediction)
+
+bot.polling()
 
