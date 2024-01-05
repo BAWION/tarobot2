@@ -1,10 +1,15 @@
+import os
 import telebot
 import openai
 from telebot import types
 
-# Здесь прямо указаны токены для Telegram и OpenAI
-TELEGRAM_TOKEN = ''
-OPENAI_TOKEN = ''
+# Получение токенов из переменных окружения
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+OPENAI_TOKEN = os.getenv('OPENAI_TOKEN')
+
+# Убедитесь, что токены были правильно загружены
+if not TELEGRAM_TOKEN or not OPENAI_TOKEN:
+    raise ValueError("Не удалось загрузить токены. Проверьте настройки переменных окружения.")
 
 # Установка API ключа для OpenAI
 openai.api_key = OPENAI_TOKEN
